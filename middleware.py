@@ -2,7 +2,7 @@
 from django.http import Http404
 from django.conf import settings
 import django.views.static
-import re
+import re,os
 from media_manager import media_dirs
 
 class MediaServeMiddleware(object):
@@ -15,7 +15,10 @@ class MediaServeMiddleware(object):
             result = re.match(exp,request.path)
             if result:
                 base,path = result.groups()
-                return django.views.static.serve(request, path, mediadir)
+                if os.path.isdir(os.path.join(mediadir,appname)):
+                    return django.views.static.serve(request, path,os.path.join(mediadir,appname))
+                else:
+                    return django.views.static.serve(request, path, mediadir)
 
         exp = "(%s)(.*)" % settings.SITE_MEDIA_PREFIX
         result = re.match(exp,request.path)
